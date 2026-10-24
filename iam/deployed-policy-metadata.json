@@ -1,0 +1,86 @@
+{
+  "collectedAt": "2026-10-24T18:31:24.506025+00:00",
+  "caller": {
+    "UserId": "AROATQAZHYOR6JWUCS4UT:b488b458-4061-705f-0424-f51d13c08242",
+    "Account": "240571106211",
+    "Arn": "arn:aws:sts::240571106211:assumed-role/AccountFullAccessRole/b488b458-4061-705f-0424-f51d13c08242"
+  },
+  "roles": {
+    "cv-ec2-role-23l-3025": {
+      "arn": "arn:aws:iam::240571106211:role/cv-ec2-role-23l-3025",
+      "tags": [
+        {
+          "Key": "Owner",
+          "Value": "23l-3025"
+        },
+        {
+          "Key": "Course",
+          "Value": "cloud"
+        }
+      ],
+      "attachedPolicies": [],
+      "inlinePolicies": {
+        "cv-ec2-s3-policy-23l-3025": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "ReadCVFiles",
+              "Effect": "Allow",
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::cv-23l-3025-82741/site/*"
+            },
+            {
+              "Sid": "ListCVFiles",
+              "Effect": "Allow",
+              "Action": "s3:ListBucket",
+              "Resource": "arn:aws:s3:::cv-23l-3025-82741",
+              "Condition": {
+                "StringEquals": {
+                  "s3:prefix": "site/"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "cv-lambda-role-23l-3025": {
+      "arn": "arn:aws:iam::240571106211:role/cv-lambda-role-23l-3025",
+      "tags": [
+        {
+          "Key": "Owner",
+          "Value": "23l-3025"
+        },
+        {
+          "Key": "Course",
+          "Value": "cloud"
+        }
+      ],
+      "attachedPolicies": [
+        {
+          "PolicyName": "AWSLambdaBasicExecutionRole",
+          "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        }
+      ],
+      "inlinePolicies": {
+        "cv-lambda-s3-policy-23l-3025": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "ReadCVFiles",
+              "Effect": "Allow",
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::cv-23l-3025-82741/site/*"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "reviewFindings": [
+    "cv-ec2-role-23l-3025: wildcard in inline action/resource",
+    "cv-ec2-role-23l-3025: GetObject resources differ from the three required object ARNs",
+    "cv-lambda-role-23l-3025: wildcard in inline action/resource",
+    "cv-lambda-role-23l-3025: GetObject resources differ from the three required object ARNs"
+  ]
+}

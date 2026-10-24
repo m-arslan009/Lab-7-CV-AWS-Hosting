@@ -18,15 +18,31 @@ This project hosts my CV through an EC2 web server and a Python Lambda Function 
 
 ## Verification status
 
-Public endpoint checks were performed on **24 October 2026**. Both hosts returned HTTP 200 for `/`, `/index.html`, `/style.css` and `/cv.pdf`, with the expected HTML, CSS and PDF content types; Lambda `/anything` returned HTTP 404 with `text/html`. Anonymous direct S3 access returned HTTP 403 with `application/xml`. See `evidence.txt` for the original collector output and `endpoint-checks.txt` for the fresh public HTTP checks from this continuation.
+Authenticated AWS evidence from the supplied `aws-lab7-evidence.zip` was collected in CloudShell on **24 October 2026 at 18:30 UTC (23:30 Asia/Karachi)**, with IAM exports at 18:31 UTC. It has replaced the earlier missing-CLI output in `evidence.txt`. The evidence contains all eleven required sections and reports zero unexpected command/discovery errors; the expected `NoSuchBucketPolicy` response confirms there is no bucket policy. Command success is separate from assignment compliance: the IAM resource pattern and tag-case issues below remain unresolved.
 
-The live EC2 footer was `Hosted on: EC2 i-0dd412efb83c5229b`, and the live Lambda footer was `Hosted on: Lambda cv-func-23l-3025`. Both downloaded PDFs matched the original local PDF byte for byte, and Lambda returned `Cache-Control: max-age=60`. The EC2 instance ID was observed in served HTML; matching it to the running AWS instance still needs authenticated verification.
+Archive SHA-256: `9d297a66b7b6715f5cb8aaeef5942fcf03e6bc982550fd8679e02c0258b89881`. The six imported files are preserved byte for byte from the archive. `iam/deployed-policy-metadata.json` records the caller, real policy names, managed attachments and review findings. These are actual exported policies, not proposed replacements. No AWS resource was changed during integration.
 
-Local validation passed Python syntax, all four JSON documents, all three Bash scripts, required files and size limits, embedded/standalone sync-script equality, and the collector's exact 11 headings and incorrect-argument behavior. Mocked Lambda checks passed for HTML/CSS/PDF routing, base64 round-trip, environment variables, unknown/traversal paths, retrieval failures and one JSON record per handled request. HTML/CSS/PDF SHA-256 hashes confirm the original site files are unchanged. Responsive rules were checked in the existing CSS; a browser-based mobile rendering check is still recommended.
+| Check | Actual evidence | Result |
+| --- | --- | --- |
+| Caller and Region | Account `240571106211`, assumed `AccountFullAccessRole`, bucket Region `ap-southeast-2` | Verified snapshot |
+| Private S3 | Four Block Public Access flags true; no bucket policy; owner-only FULL_CONTROL ACL; BucketOwnerEnforced | Pass |
+| Versioning | `Enabled` | Pass |
+| Current S3 objects | Exactly `site/index.html` (13,074 bytes), `site/style.css` (14,307), `site/cv.pdf` (104,015); no folder marker or other current object | Pass |
+| EC2 role | EC2 service trust; GetObject on `site/*`; ListBucket with exact `site/` condition; no attached managed policies | Scope limited; strict wildcard constraint unresolved |
+| Lambda role | Lambda service trust; GetObject on `site/*`; no ListBucket; AWSLambdaBasicExecutionRole attached | Scope limited; strict wildcard constraint unresolved |
+| Security group | `sg-073380e3f053b64a3`: TCP 80 from `0.0.0.0/0`, TCP 22 from `103.157.248.25/32`, no other inbound rules | Pass for rule shape; ownership of SSH source address not independently verified |
+| EC2 | Running `t3.micro`, Amazon Linux 2023 AMI `ami-0ddbd63d0e3325a92`, IMDSv2 required, expected role/profile | Pass for recorded configuration |
+| HTTP paths | Both hosts return 200 for HTML/CSS/PDF with correct types; Lambda `/anything` returns HTML 404; direct S3 returns 403 | Pass |
+| Lambda | `python3.14`, 128 MB, 10-second timeout, expected BUCKET/PREFIX/role, Function URL AuthType NONE | Pass for recorded configuration |
+| Logging | 45 observed application JSON records contain fn/path/status/ms; log group retention is 7 days | Pass for observed records and retention |
+| Required tags | Bucket, instance, function and both roles have `Course=cloud`, `Owner=23l-3025` | Present; case differs from handout's `23L-3025` roll number |
+| Budget and hygiene | COST budget `cv-lab7-budget`, USD 5 limit; one nonterminated instance; no Elastic IP, active/pending NAT gateway or classic/v2 load balancer in Sydney | Verified snapshot; budget period/alerts and other Regions not collected |
+| EC2 timer and log excerpt | No deployed timer output or last-ten-log excerpt in archive | Pending |
+| EC2 instance-role denial | No real failed write/delete output in archive | Pending |
 
-**AWS configuration remains unverified:** AWS CLI is not installed in the preparation environment, so `evidence.txt` records real command-not-found errors for AWS queries. The IAM JSON files are **proposed least-privilege policies, not exports of the deployed roles**. The EC2 scripts and Lambda handler are reviewed local source; they have not been installed or deployed by this preparation task. No active AWS resource was changed.
+The live EC2 footer previously read `Hosted on: EC2 i-0dd412efb83c5229b`; authenticated instance evidence now confirms that same instance ID and public IP. Lambda's footer was `Hosted on: Lambda cv-func-23l-3025`, with `Cache-Control: max-age=60`. Both downloaded PDFs matched the original PDF byte for byte in `endpoint-checks.txt`. The newer CloudShell endpoint section corroborates response statuses and MIME types.
 
-Before final submission, run the collector in an authenticated AWS environment, replace the proposed policies with verified actual exports, and add the two EC2 output excerpts requested below. Successful HTTP responses alone do not prove S3 Block Public Access, versioning, IAM scope, runtime, memory, timeout, log retention, tags or budget settings.
+Local Python, Bash, JSON, structure, file-size and secret/private-key checks passed. The original portfolio, CSS and PDF are unchanged. Reviewed repository EC2 scripts and Lambda source have not been deployed by this integration task; the archive does not contain a byte-for-byte export of deployed code or EC2 user data. The running synchronization interval remains unverified until the actual timer and logs are collected.
 
 ## Architecture
 
@@ -72,13 +88,21 @@ Technologies: Amazon S3, EC2, IAM, Lambda Function URLs, CloudWatch Logs, Amazon
 
 ## S3 and IAM
 
-The required S3 state is all four Block Public Access settings enabled, versioning enabled, no bucket policy, and no public ACL grants. Exactly three current objects must exist: `site/index.html`, `site/style.css` and `site/cv.pdf`; retain `Hosted on: {{HOSTED_ON}}` in S3. The local HTML is 13,074 bytes and the PDF is 104,015 bytes, below even the decimal limits of 100 KB and 1 MB. Historical versions may exist because versioning is required.
+The authenticated snapshot shows all four S3 Block Public Access settings enabled, versioning Enabled, no bucket policy, owner-only ACL access and BucketOwnerEnforced object ownership. The bucket contains exactly three current objects and no `site/` folder marker: `site/index.html`, `site/style.css`, `site/cv.pdf`. HTML and PDF sizes are below the assignment limits. Historical versions may exist because versioning is enabled; the collector enumerates current objects.
 
-`ec2-trust.json` trusts `ec2.amazonaws.com`; `lambda-trust.json` trusts `lambda.amazonaws.com`. The proposed EC2 inline permissions allow `s3:GetObject` on the three explicit site object ARNs and `s3:ListBucket` on the named bucket only when `s3:prefix` equals `site/`. Lambda has `s3:GetObject` on those same three explicit objects and no `s3:ListBucket`. Explicit object names avoid wildcard resources as required by Section 4 of the assignment; introducing another asset would require a reviewed policy change.
+The four policy files in `iam/` now contain actual exports. EC2 trusts `ec2.amazonaws.com` and uses inline policy `cv-ec2-s3-policy-23l-3025`; Lambda trusts `lambda.amazonaws.com` and uses inline policy `cv-lambda-s3-policy-23l-3025`. EC2 has no attached managed policies. Lambda has the verified AWS managed policy `arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole` plus its S3 inline policy, and no ListBucket permission.
 
-Lambda additionally requires the separate AWS managed policy `arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`. That attachment is not part of `lambda-permissions.json`, which is the S3 inline policy. Its presence must be verified with `list-attached-role-policies`; it has not been assumed or applied here. There are no static AWS credentials in the submitted source.
+Both actual S3 permission documents contain this exact GetObject resource:
 
-Use `bash collect-cloudshell.sh` from an authenticated AWS CloudShell session to discover the real inline policy names and export both trust and permission policies. The helper retrieves and parses all four documents before replacing local drafts and keeps backups under ignored `.validation/backups/`. If retrieval fails or either role has zero/multiple inline policies, the four drafts remain in place and the actual policies are available in `evidence.txt` for review. Successful export also creates `iam/deployed-policy-metadata.json`, recording source roles, caller, managed attachments, original inline policy names and review findings. Noncompliant actual policies are reported and exported faithfully; no deployed role is modified. Until successful exports are reviewed, the four committed IAM files remain drafts.
+```json
+{"Effect":"Allow","Action":"s3:GetObject","Resource":"arn:aws:s3:::cv-23l-3025-82741/site/*"}
+```
+
+EC2 additionally has `s3:ListBucket` on `arn:aws:s3:::cv-23l-3025-82741`, conditioned on `StringEquals: {"s3:prefix": "site/"}`. Neither inline policy grants S3 writes/deletes or wildcard actions. `site/*` matches objects only within the named bucket's `site/` prefix; it is not the unrestricted resource `"*"`. This is a valid prefix-scoped AWS resource pattern, as explained in [AWS IAM resource documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_resource.html).
+
+**Assignment discrepancy:** Section 4 explicitly says no wildcard resources except in the managed logging policy. Both deployed inline policies still contain `site/*`, so strict compliance cannot be marked complete. The metadata's four findings reflect that pattern and the earlier validator's expectation of three explicit object ARNs; they do not mean the roles have unrestricted account-wide access. No policy or metadata finding was silently changed. To meet the literal rule, obtain approval to replace only the GetObject resource pattern in each deployed inline policy with the three explicit object ARNs, then collect/export fresh evidence. The current exported JSON must remain a faithful record until that change actually occurs.
+
+Use `bash collect-cloudshell.sh` for a future authenticated refresh. It discovers actual inline policy names, retrieves/parses all four documents before replacing local files, preserves local backups under ignored `.validation/backups/`, and records source metadata. Multiple inline policies or retrieval failures stop the four-file replacement for review. The helper reports discrepancies without modifying AWS permissions. The public Function URL's wildcard Principal is an invocation permission, separate from S3 execution-role resource scope; AWSLambdaBasicExecutionRole's logging wildcard is the handout's explicit exception.
 
 ## EC2 implementation and setup
 
@@ -88,7 +112,7 @@ The sync script uses temporary credentials supplied by the IAM instance role. It
 
 The timer starts the service every four minutes; the service has a 50-second timeout, leaving headroom within the five-minute update requirement during successful operation. Network or permission failures can delay updates and are recorded as failures; the next timer run retries. Nginx's standard MIME configuration serves HTML, CSS and PDF.
 
-For a reviewed future deployment, use one eligible `t2.micro` or `t3.micro` Amazon Linux 2023 instance, attach the instance profile containing the EC2 role, require IMDSv2 (`HttpTokens=required`), and use its ordinary public IPv4 address. Permit inbound TCP 80 from anywhere; TCP 22 must be absent or restricted to your own single `/32`; allow no other inbound rules. Do not allocate an Elastic IP, NAT gateway or load balancer. Use `Owner=23l-3025` and `Course=cloud` tags on the instance, bucket, function and both roles. Check your account's actual Free Tier/credits and budget in Billing.
+For a reviewed future deployment, use one eligible `t2.micro` or `t3.micro` Amazon Linux 2023 instance, attach the instance profile containing the EC2 role, require IMDSv2 (`HttpTokens=required`), and use its ordinary public IPv4 address. Permit inbound TCP 80 from anywhere; TCP 22 must be absent or restricted to your own single `/32`; allow no other inbound rules. Do not allocate an Elastic IP, NAT gateway or load balancer. For literal handout compliance, use `Owner=23L-3025` and `Course=cloud` on the instance, bucket, function and both roles; the actual imported Owner values are lowercase and remain unchanged pending review. Check your account's actual Free Tier/credits and budget in Billing.
 
 Read-only checks from a shell on the existing instance:
 
@@ -101,11 +125,11 @@ sudo tail -n 10 /var/log/cv-sync.log
 
 ## Lambda implementation and setup
 
-Handler: `lambda_function.lambda_handler`. `BUCKET` and `PREFIX` are required environment variables; configure them as `cv-23l-3025-82741` and `site/`. The handler does not hard-code the bucket or prefix. Use the latest Python runtime offered for this Region, 128–256 MB memory, a 10-second timeout, and seven-day retention on `/aws/lambda/cv-func-23l-3025`; the actual values require AWS verification.
+The local handler is `lambda_function.lambda_handler` and reads `BUCKET` and `PREFIX` from the environment. Authenticated function configuration confirms `BUCKET=cv-23l-3025-82741`, `PREFIX=site/`, runtime `python3.14`, memory 128 MB, timeout 10 seconds and execution role `cv-lambda-role-23l-3025`. The CloudWatch log group `/aws/lambda/cv-func-23l-3025` has verified seven-day retention. The collector does not export the deployed handler setting or source ZIP, so local-source equivalence and the handout's latest-offered-runtime wording are not independently certified.
 
 `/` and `/index.html` return HTML with the footer `Hosted on: Lambda cv-func-23l-3025` and `Cache-Control: max-age=60`. `/style.css` returns CSS; `/cv.pdf` returns a base64 body with `isBase64Encoded=true` and `Content-Type: application/pdf`. Unknown paths return a short HTML page with status 404 without accessing S3. Internal retrieval failures return a generic error; known missing objects return 404, but S3 can conceal a missing object as AccessDenied when the role lacks ListBucket. Each handled request prints one JSON record with `fn`, `path`, `status` and elapsed `ms`; Lambda platform lifecycle logs are separate.
 
-Use Function URL authentication `NONE` and verify the function resource policy grants public URL invocation. Current AWS guidance requires both `lambda:InvokeFunctionUrl` and `lambda:InvokeFunction`, with conditions restricting this permission to the Function URL. These invocation permissions are distinct from the execution role's private S3 access. No function code, environment, URL policy or log group was modified here.
+The exported Function URL configuration confirms authentication `NONE`. The actual resource policy grants public `lambda:InvokeFunctionUrl` with `lambda:FunctionUrlAuthType=NONE`, and public `lambda:InvokeFunction` with `lambda:InvokedViaFunctionUrl=true`, both on this specific function ARN. These invocation permissions are distinct from the execution role's private S3 access. No function code, environment, URL policy or log group was modified here.
 
 For a future approved code deployment, package `lambda/lambda_function.py` at the root of the ZIP, choose the handler above, review the current configuration, and deploy through your existing Lambda function. Preserve the known working deployment until its configuration and source have been exported and compared. Likewise, review S3 changes before uploading: the EC2 timer automatically publishes them.
 
@@ -119,7 +143,7 @@ bash collect-evidence.sh cv-23l-3025-82741 \
   https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/
 ```
 
-With AWS CLI and curl available, the collector writes `evidence.txt`, records command failures, continues through exactly 11 named sections, and prints `DONE`. If AWS CLI or curl is absent, it exits 127 before touching existing evidence and gives CloudShell instructions. Authentication or individual AWS command failures are recorded during collection; `DONE` means collection finished, not that AWS configuration passed. `NoSuchBucketPolicy` is explicitly marked expected; AccessDenied and other errors remain unexpected. Account-dependent checks are skipped if account discovery fails, and Lambda tags use the actual function ARN rather than a constructed account placeholder. With two arguments it prints usage and exits 1. Re-run it in your AWS environment and commit the resulting genuine output, replacing this preparation run with its missing-CLI errors. The script is specific to this lab's named roles, function and instance; its three arguments select the bucket and public addresses. Additional C15 read-only checks inspect instance counts, IP allocations, NAT gateways, load balancers and budget existence in the configured Region.
+With AWS CLI and curl available, the collector writes `evidence.txt`, records command failures, continues through exactly 11 named sections, and prints `DONE`. If AWS CLI or curl is absent, it exits 127 before touching existing evidence and gives CloudShell instructions. Authentication or individual AWS command failures are recorded during collection; `DONE` means collection finished, not that AWS configuration passed. `NoSuchBucketPolicy` is explicitly marked expected; AccessDenied and other errors remain unexpected. Account-dependent checks are skipped if account discovery fails, and Lambda tags use the actual function ARN rather than a constructed account placeholder. With two arguments it prints usage and exits 1. The root `evidence.txt` now contains the imported authenticated run; re-run only for a deliberate refresh and review the resulting real output before committing. The script is specific to this lab's named roles, function and instance; its three arguments select the bucket and public addresses. Additional C15 read-only checks inspect instance counts, IP allocations, NAT gateways, load balancers and budget existence in the configured Region.
 
 Useful local validation commands:
 
@@ -168,7 +192,7 @@ The instance's running web server, local sync state and ordinary public IPv4 end
 
 ## Finish evidence collection from AWS CloudShell
 
-AWS CLI and local AWS credential/profile files were not available during this continuation. Both `aws --version` and `aws sts get-caller-identity` could not execute locally. The existing genuine `evidence.txt` has been preserved; its missing-CLI failures are historical evidence of an incomplete run, not authenticated AWS configuration. The new collector's missing-CLI guard prevents producing another misleading run.
+The downloaded authenticated CloudShell run and actual IAM exports have now been integrated. Local AWS CLI access is still unavailable, but the supplied archive provides the configuration snapshot reviewed above. Use this workflow for a future refresh after any approved AWS changes; it is not necessary to replace the same snapshot again. The collector's missing-CLI guard preserves existing evidence when the local CLI is absent.
 
 Open AWS CloudShell in **ap-southeast-2** using your existing signed-in AWS account. In a fresh CloudShell directory, run exactly:
 
@@ -180,7 +204,7 @@ bash collect-cloudshell.sh
 
 If the clone already exists in CloudShell, enter it and run `git pull --ff-only` before the helper. CloudShell includes AWS CLI and uses your session; do not enter or share access keys. If an AWS query is denied, use the correct existing account/session or obtain the necessary read permission; do not broaden either workload role for collection.
 
-Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too. No such authenticated values have yet been verified locally.
+Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too; current evidence confirms all five Owner tags use lowercase `23l-3025`, the USD 5 budget exists, and Sydney has no recorded Elastic IP/NAT/load balancer. The supplied snapshot has been checked against these requirements as summarized above. IAM wildcard scope and Owner tag case remain unresolved; the collection does not certify billing allowances or future configuration.
 
 ### Collect the existing instance evidence
 
@@ -209,22 +233,21 @@ git commit -m "Add authenticated AWS policies and final instance evidence"
 git push origin main
 ```
 
-The five Section 8 answers above are preserved. No AWS resources, deployed source, timer, IAM permissions or retention settings are changed by the collection workflow.
+The five Section 8 answers above are preserved. No AWS resources, deployed source, timer, IAM permissions or retention settings were changed during evidence integration.
 
 ## Submission checklist
 
-- Refresh `evidence.txt` using AWS CLI and replace the proposed IAM JSON with verified deployed policies; confirm all C7–C10 and C13 requirements.
-- Paste the actual instance-role AccessDenied output and last ten sync log lines above.
-- Verify runtime, 128–256 MB memory, 10-second timeout, seven-day retention, tags on all five required resources, account budget and C15 resource hygiene.
-- Check both public sites, footers, PDF rendering and mobile layout immediately before submission; keep both endpoints working until marking ends.
-- Review staged content for secrets/private keys, then commit and push to `main` with an account authorized to write this existing repository.
-- Submit the repository URL, both website URLs and roll number `23L-3025` through the instructor's channel.
+- Resolve or obtain instructor acceptance for the two prefix-scoped `site/*` resource patterns under the strict no-wildcard rule. Change AWS only after approval and export a new snapshot afterward; do not edit exported JSON to imply an undeployed fix.
+- Confirm whether Owner tag values must match `23L-3025` exactly. All five actual values are `23l-3025`; obtain approval before changing tags and recollect evidence afterward.
+- Collect actual EC2 timer output, last ten sync log lines and instance-role AccessDenied proof using the existing instance helper; paste genuine excerpts into the pending sections.
+- Check that deployed source matches the reviewed implementation where required, verify account-specific credits/allowances and budget notifications in Billing, and inspect any other used Regions separately.
+- Keep both public sites working through marking. Submit the repository URL, both website URLs and roll number `23L-3025` through the instructor's channel.
 
 ## References and authorship
 
-The existing portfolio and CV were retained. Repository preparation, the proposed Lambda handler, revised synchronization code, proposed policies and evidence collector were prepared with Codex assistance; review them and be able to explain them before submission, and confirm the instructor's AI-tool policy (the provided assignment leaves it unspecified).
+The existing portfolio and CV were retained. Repository preparation, the proposed Lambda handler, revised synchronization code, earlier proposed policies and evidence collector were prepared with Codex assistance; review them and be able to explain them before submission, and confirm the instructor's AI-tool policy (the provided assignment leaves it unspecified).
 
-Collector regression checks passed using isolated fixtures for wrong arguments, missing CLI, expected NoSuchBucketPolicy, actual-error classification, authentication failure, account/resource discovery, multiple policy names/security groups, all eleven headings and DONE. These fixtures are local tests and are not committed as AWS evidence. Fresh public HTTP checks passed; the authenticated configuration and instance excerpts remain pending.
+Collector regression checks passed using isolated fixtures for wrong arguments, missing CLI, expected NoSuchBucketPolicy, actual-error classification, authentication failure, account/resource discovery, multiple policy names/security groups, all eleven headings and DONE. These fixtures are local tests and are not committed as AWS evidence. Public HTTP checks passed and the supplied authenticated configuration was reviewed; the instance excerpts and documented assignment discrepancies remain pending.
 
 Collection references: [AWS CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html), [bucket Region discovery](https://docs.aws.amazon.com/cli/latest/reference/s3api/get-bucket-location.html), and [version-specific S3 deletion](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html).
 

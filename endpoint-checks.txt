@@ -1,0 +1,48 @@
+Public endpoint checks at 2026-10-24T18:11:33.148863+00:00
+These HTTP checks do not verify authenticated AWS configuration or instance-role permissions.
+
+EC2 /: status=200 content-type=text/html
+URL: http://54.252.152.179/
+Footer: Hosted on: EC2 i-0dd412efb83c5229b
+PASS
+
+EC2 /index.html: status=200 content-type=text/html
+URL: http://54.252.152.179/index.html
+PASS
+
+EC2 /style.css: status=200 content-type=text/css
+URL: http://54.252.152.179/style.css
+PASS
+
+EC2 /cv.pdf: status=200 content-type=application/pdf
+URL: http://54.252.152.179/cv.pdf
+PDF matches original SHA-256: e61c12c691e7495dadd1ca2ac4b477fc952cc58ff03e25e18162fd59d925573f
+PASS
+
+Lambda /: status=200 content-type=text/html
+URL: https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/
+Footer: Hosted on: Lambda cv-func-23l-3025
+Cache-Control: max-age=60
+PASS
+
+Lambda /index.html: status=200 content-type=text/html
+URL: https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/index.html
+PASS
+
+Lambda /style.css: status=200 content-type=text/css
+URL: https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/style.css
+PASS
+
+Lambda /cv.pdf: status=200 content-type=application/pdf
+URL: https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/cv.pdf
+PDF matches original SHA-256: e61c12c691e7495dadd1ca2ac4b477fc952cc58ff03e25e18162fd59d925573f
+PASS
+
+Lambda /anything: status=404 content-type=text/html
+URL: https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/anything
+PASS
+
+Direct S3 /site/index.html: status=403 content-type=application/xml
+URL: https://cv-23l-3025-82741.s3.ap-southeast-2.amazonaws.com/site/index.html
+Body error code: AccessDenied (anonymous request)
+PASS

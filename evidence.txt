@@ -1,6 +1,6 @@
 
 == caller ==
-Collected at 2026-10-24T17:57:21Z; Region ap-southeast-2
+Collected at 2026-10-24T18:03:08Z; Region ap-southeast-2
 
 $ aws sts get-caller-identity
 ./collect-evidence.sh: line 23: aws: command not found

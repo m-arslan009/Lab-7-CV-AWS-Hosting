@@ -18,7 +18,7 @@ This project hosts my CV through an EC2 web server and a Python Lambda Function 
 
 ## Verification status
 
-Public endpoint checks were performed on **24 October 2026**. Both hosts returned HTTP 200 for `/`, `/index.html`, `/style.css` and `/cv.pdf`, with the expected HTML, CSS and PDF content types; Lambda `/anything` returned HTTP 404 with `text/html`. Anonymous direct S3 access returned HTTP 403 with `application/xml`. See `evidence.txt` for the actual collector output.
+Public endpoint checks were performed on **24 October 2026**. Both hosts returned HTTP 200 for `/`, `/index.html`, `/style.css` and `/cv.pdf`, with the expected HTML, CSS and PDF content types; Lambda `/anything` returned HTTP 404 with `text/html`. Anonymous direct S3 access returned HTTP 403 with `application/xml`. See `evidence.txt` for the original collector output and `endpoint-checks.txt` for the fresh public HTTP checks from this continuation.
 
 The live EC2 footer was `Hosted on: EC2 i-0dd412efb83c5229b`, and the live Lambda footer was `Hosted on: Lambda cv-func-23l-3025`. Both downloaded PDFs matched the original local PDF byte for byte, and Lambda returned `Cache-Control: max-age=60`. The EC2 instance ID was observed in served HTML; matching it to the running AWS instance still needs authenticated verification.
 
@@ -66,7 +66,7 @@ iam/
   lambda-permissions.json
 ```
 
-`.gitignore` protects local credentials, private keys and generated packages; `.gitattributes` keeps shell scripts in LF format. The supplied assignment document is retained locally as a reference, outside the submission commit.
+`collect-cloudshell.sh` performs authenticated collection and local IAM exports; `ec2/collect-instance-evidence.sh` collects timer/log/role-denial proof on the instance. `endpoint-checks.txt` contains the fresh real public HTTP results. `.gitignore` protects local credentials, private keys and generated packages; `.gitattributes` keeps shell scripts in LF format. The supplied assignment document is retained locally as a reference, outside the submission commit.
 
 Technologies: Amazon S3, EC2, IAM, Lambda Function URLs, CloudWatch Logs, Amazon Linux 2023, Nginx, systemd, AWS CLI, Python/boto3, Bash, HTML/CSS, Git and curl.
 
@@ -78,25 +78,7 @@ The required S3 state is all four Block Public Access settings enabled, versioni
 
 Lambda additionally requires the separate AWS managed policy `arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`. That attachment is not part of `lambda-permissions.json`, which is the S3 inline policy. Its presence must be verified with `list-attached-role-policies`; it has not been assumed or applied here. There are no static AWS credentials in the submitted source.
 
-To export actual role documents after authenticating, use the following read-only commands from the repository root. Discover the real inline policy names rather than assuming a name:
-
-```bash
-export AWS_DEFAULT_REGION=ap-southeast-2 AWS_PAGER=""
-aws iam get-role --role-name cv-ec2-role-23l-3025 \
-  --query Role.AssumeRolePolicyDocument --output json > iam/ec2-trust.json
-aws iam get-role --role-name cv-lambda-role-23l-3025 \
-  --query Role.AssumeRolePolicyDocument --output json > iam/lambda-trust.json
-aws iam list-role-policies --role-name cv-ec2-role-23l-3025
-aws iam list-role-policies --role-name cv-lambda-role-23l-3025
-# Replace the two policy-name arguments with the names returned above.
-aws iam get-role-policy --role-name cv-ec2-role-23l-3025 \
-  --policy-name ACTUAL_EC2_INLINE_POLICY_NAME --query PolicyDocument --output json > iam/ec2-permissions.json
-aws iam get-role-policy --role-name cv-lambda-role-23l-3025 \
-  --policy-name ACTUAL_LAMBDA_INLINE_POLICY_NAME --query PolicyDocument --output json > iam/lambda-permissions.json
-aws iam list-attached-role-policies --role-name cv-lambda-role-23l-3025
-```
-
-Review successful output before committing; a failed command can leave an empty redirected file. If a role has multiple inline policies, export and review all of them rather than representing one as its full permissions. If actual policies differ from the assignment, record the discrepancy and seek approval before changing the deployed role.
+Use `bash collect-cloudshell.sh` from an authenticated AWS CloudShell session to discover the real inline policy names and export both trust and permission policies. The helper retrieves and parses all four documents before replacing local drafts and keeps backups under ignored `.validation/backups/`. If retrieval fails or either role has zero/multiple inline policies, the four drafts remain in place and the actual policies are available in `evidence.txt` for review. Successful export also creates `iam/deployed-policy-metadata.json`, recording source roles, caller, managed attachments, original inline policy names and review findings. Noncompliant actual policies are reported and exported faithfully; no deployed role is modified. Until successful exports are reviewed, the four committed IAM files remain drafts.
 
 ## EC2 implementation and setup
 
@@ -137,7 +119,7 @@ bash collect-evidence.sh cv-23l-3025-82741 \
   https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/
 ```
 
-The collector writes `evidence.txt`, records command failures, continues through exactly 11 named sections, and prints `DONE`. It checks public status/content types and direct S3 access even when AWS queries fail. With two arguments it prints usage and exits 1. Re-run it in your AWS environment and commit the resulting genuine output, replacing this preparation run with its missing-CLI errors. The script is specific to this lab's named roles, function and instance; its three arguments select the bucket and public addresses. Additional C15 read-only checks inspect instance counts, IP allocations, NAT gateways, load balancers and budget existence in the configured Region.
+With AWS CLI and curl available, the collector writes `evidence.txt`, records command failures, continues through exactly 11 named sections, and prints `DONE`. If AWS CLI or curl is absent, it exits 127 before touching existing evidence and gives CloudShell instructions. Authentication or individual AWS command failures are recorded during collection; `DONE` means collection finished, not that AWS configuration passed. `NoSuchBucketPolicy` is explicitly marked expected; AccessDenied and other errors remain unexpected. Account-dependent checks are skipped if account discovery fails, and Lambda tags use the actual function ARN rather than a constructed account placeholder. With two arguments it prints usage and exits 1. Re-run it in your AWS environment and commit the resulting genuine output, replacing this preparation run with its missing-CLI errors. The script is specific to this lab's named roles, function and instance; its three arguments select the bucket and public addresses. Additional C15 read-only checks inspect instance counts, IP allocations, NAT gateways, load balancers and budget existence in the configured Region.
 
 Useful local validation commands:
 
@@ -146,6 +128,8 @@ python -c "import ast,pathlib; ast.parse(pathlib.Path('lambda/lambda_function.py
 bash -n collect-evidence.sh
 bash -n ec2/user-data.sh
 bash -n ec2/sync-cv.sh
+bash -n collect-cloudshell.sh
+bash -n ec2/collect-instance-evidence.sh
 python -m json.tool iam/ec2-trust.json > /dev/null
 python -m json.tool iam/ec2-permissions.json > /dev/null
 python -m json.tool iam/lambda-trust.json > /dev/null
@@ -154,7 +138,7 @@ python -m json.tool iam/lambda-permissions.json > /dev/null
 
 ### Required EC2 access-denied excerpt
 
-**Pending: no instance shell or authenticated AWS access was available.** The assignment requires a real failed overwrite/delete attempt using the instance role. Do not substitute anonymous S3 HTTP 403 for that proof; it tests different permissions. Verify the role denies writes before performing the instructor's test, and paste the actual failed command and AccessDenied output here. No write/delete attempt was made during preparation.
+**Pending: no instance shell or authenticated AWS access was available.** Run `ec2/collect-instance-evidence.sh` on the existing instance as described below, then paste its actual deletion command and AccessDenied output here. The helper uses the instance role, a random nonexistent test key and an explicit null version; it never targets a CV object. Anonymous S3 HTTP 403 is a separate check and cannot replace instance-role denial evidence. No deletion probe was run during local preparation.
 
 ### Required final ten EC2 synchronization log entries
 
@@ -182,6 +166,51 @@ A running EC2 instance has compute costs even without visitors, with storage and
 
 The instance's running web server, local sync state and ordinary public IPv4 endpoint are lost; attached volumes are deleted or retained according to their deletion settings. S3 objects and versions, the Lambda hosting path, repository and separate IAM roles remain unless explicitly deleted. Any retained volumes or other resources may continue to incur charges. The EC2 path can be rebuilt from the retained source and configuration after approval.
 
+## Finish evidence collection from AWS CloudShell
+
+AWS CLI and local AWS credential/profile files were not available during this continuation. Both `aws --version` and `aws sts get-caller-identity` could not execute locally. The existing genuine `evidence.txt` has been preserved; its missing-CLI failures are historical evidence of an incomplete run, not authenticated AWS configuration. The new collector's missing-CLI guard prevents producing another misleading run.
+
+Open AWS CloudShell in **ap-southeast-2** using your existing signed-in AWS account. In a fresh CloudShell directory, run exactly:
+
+```bash
+git clone https://github.com/m-arslan009/Lab-7-CV-AWS-Hosting.git
+cd Lab-7-CV-AWS-Hosting
+bash collect-cloudshell.sh
+```
+
+If the clone already exists in CloudShell, enter it and run `git pull --ff-only` before the helper. CloudShell includes AWS CLI and uses your session; do not enter or share access keys. If an AWS query is denied, use the correct existing account/session or obtain the necessary read permission; do not broaden either workload role for collection.
+
+Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too. No such authenticated values have yet been verified locally.
+
+### Collect the existing instance evidence
+
+From a Bash shell containing the clone and your existing SSH key (never add that key to Git), run:
+
+```bash
+ssh -i /path/to/existing-key.pem ec2-user@54.252.152.179 \
+  'bash -s' < ec2/collect-instance-evidence.sh > ec2-instance-evidence.txt
+```
+
+Replace only the key path. Use SSH only if your current security group already permits your address; otherwise use your existing EC2 Instance Connect session and paste/run the helper there. No security-group change is needed for repository preparation. The helper collects OS/instance identity, actual systemd timer units/status, the last ten synchronization log entries, caller identity and the actual S3 denial test. It clears other credential providers and refuses the probe unless the caller ARN is the expected EC2 role. It does not retrieve or print instance credential JSON or metadata tokens.
+
+The probe targets a fresh random `site/.readonly-probe-<uuid>` key with `--version-id null`. Explicit version deletion avoids adding a delete marker in the versioned bucket, and no real CV key is targeted even if permissions are unexpectedly excessive. Only an actual AccessDenied result counts; a successful response or different error is an unresolved permission/test issue. Do not retry against a real CV file. This probe establishes denial for the probe resource; review the full IAM policy as well to rule out per-object write grants.
+
+Paste the genuine AccessDenied excerpt and ten sync log lines into their pending README sections. Check at least three consecutive SUCCESS entries and their timestamps against the actual timer configuration (interval no greater than five minutes); neither a source-code timer nor the public footer proves the running timer. The live instance ID must match authenticated `describe-instances` output. Keep all remaining gaps marked pending until their evidence is obtained.
+
+After reviewing actual outputs and scanning for credentials/private keys, commit from your authenticated GitHub environment:
+
+```bash
+git diff --check
+git diff -- README.md evidence.txt iam/
+git add README.md evidence.txt iam/
+# If desired, include the reviewed raw instance output separately:
+# git add ec2-instance-evidence.txt
+git commit -m "Add authenticated AWS policies and final instance evidence"
+git push origin main
+```
+
+The five Section 8 answers above are preserved. No AWS resources, deployed source, timer, IAM permissions or retention settings are changed by the collection workflow.
+
 ## Submission checklist
 
 - Refresh `evidence.txt` using AWS CLI and replace the proposed IAM JSON with verified deployed policies; confirm all C7–C10 and C13 requirements.
@@ -194,5 +223,9 @@ The instance's running web server, local sync state and ordinary public IPv4 end
 ## References and authorship
 
 The existing portfolio and CV were retained. Repository preparation, the proposed Lambda handler, revised synchronization code, proposed policies and evidence collector were prepared with Codex assistance; review them and be able to explain them before submission, and confirm the instructor's AI-tool policy (the provided assignment leaves it unspecified).
+
+Collector regression checks passed using isolated fixtures for wrong arguments, missing CLI, expected NoSuchBucketPolicy, actual-error classification, authentication failure, account/resource discovery, multiple policy names/security groups, all eleven headings and DONE. These fixtures are local tests and are not committed as AWS evidence. Fresh public HTTP checks passed; the authenticated configuration and instance excerpts remain pending.
+
+Collection references: [AWS CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html), [bucket Region discovery](https://docs.aws.amazon.com/cli/latest/reference/s3api/get-bucket-location.html), and [version-specific S3 deletion](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html).
 
 Adapted using official AWS documentation: [Function URL request/response format](https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html), [Function URL access control](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html), [S3 IAM resource and action scoping](https://docs.aws.amazon.com/AmazonS3/latest/userguide/security_iam_service-with-iam.html), and [Lambda runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html). Cost discussion follows [EC2 On-Demand pricing](https://aws.amazon.com/ec2/pricing/on-demand/) and [Lambda pricing](https://aws.amazon.com/lambda/pricing/); no fixed prices or Free Tier eligibility are assumed for this account.

@@ -1,0 +1,19 @@
+# Credentials, private keys, local AWS profiles and generated packages
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+__pycache__/
+*.py[cod]
+.venv/
+*.zip
+.upstream/
+.validation/
+# Keep the supplied course handout locally, outside the public submission.
+/Lab 7 - Basic App Deployment on AWS.docx

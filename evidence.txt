@@ -1,0 +1,169 @@
+
+== caller ==
+Collected at 2026-10-24T17:57:21Z; Region ap-southeast-2
+
+$ aws sts get-caller-identity
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+== public-access ==
+
+$ aws s3api get-public-access-block --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws s3api get-bucket-policy --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws s3api get-bucket-acl --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws s3api get-bucket-ownership-controls --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws s3api get-bucket-tagging --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+== versioning ==
+
+$ aws s3api get-bucket-versioning --bucket cv-23l-3025-82741
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+== objects ==
+
+$ aws s3 ls s3://cv-23l-3025-82741/site/ --recursive
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws s3api list-objects-v2 --bucket cv-23l-3025-82741 --query Contents\[\].\{Key:Key\,Size:Size\}
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+== ec2-policy ==
+
+$ aws iam get-role --role-name cv-ec2-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws iam list-role-policies --role-name cv-ec2-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws iam list-attached-role-policies --role-name cv-ec2-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+
+== lambda-policy ==
+
+$ aws iam get-role --role-name cv-lambda-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws iam list-role-policies --role-name cv-lambda-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws iam list-attached-role-policies --role-name cv-lambda-role-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+
+== security-group ==
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+
+== instance ==
+
+$ aws ec2 describe-instances --filters Name=tag:Name\,Values=cv-ec2-23l-3025 --query Reservations\[\].Instances\[\].\{Id:InstanceId\,Type:InstanceType\,State:State.Name\,Image:ImageId\,PublicIP:PublicIpAddress\,Metadata:MetadataOptions\,Profile:IamInstanceProfile\,Tags:Tags\}
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+
+$ aws ec2 describe-instances --filters Name=instance-state-name\,Values=pending\,running\,stopping\,stopped --query Reservations\[\].Instances\[\].\{Id:InstanceId\,State:State.Name\,Tags:Tags\}
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws ec2 describe-addresses
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws ec2 describe-nat-gateways --filter Name=state\,Values=pending\,available
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws elbv2 describe-load-balancers
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws elb describe-load-balancers
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+ERROR: discovery failed (127): ./collect-evidence.sh: line 30: aws: command not found
+
+== endpoints ==
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n http://54.252.152.179/
+URL=http://54.252.152.179/ status=200 content-type=text/html
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n http://54.252.152.179/index.html
+URL=http://54.252.152.179/index.html status=200 content-type=text/html
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n http://54.252.152.179/style.css
+URL=http://54.252.152.179/style.css status=200 content-type=text/css
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n http://54.252.152.179/cv.pdf
+URL=http://54.252.152.179/cv.pdf status=200 content-type=application/pdf
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/
+URL=https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/ status=200 content-type=text/html
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/index.html
+URL=https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/index.html status=200 content-type=text/html
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/style.css
+URL=https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/style.css status=200 content-type=text/css
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/cv.pdf
+URL=https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/cv.pdf status=200 content-type=application/pdf
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out URL=%\{url_effective\}\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/anything
+URL=https://mxih5vg6yivpvbekwwnzgiyo7y0vhdqv.lambda-url.ap-southeast-2.on.aws/anything status=404 content-type=text/html
+
+$ curl --connect-timeout 5 --max-time 20 --silent --show-error --output /dev/null --write-out Direct\ S3:\ status=%\{http_code\}\ content-type=%\{content_type\}\\n https://cv-23l-3025-82741.s3.ap-southeast-2.amazonaws.com/site/index.html
+Direct S3: status=403 content-type=application/xml
+
+== lambda-logs ==
+
+$ aws logs tail /aws/lambda/cv-func-23l-3025 --since 1h --format short
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+== log-retention ==
+
+$ aws logs describe-log-groups --log-group-name-prefix /aws/lambda/cv-func-23l-3025 --query logGroups\[\?logGroupName==\'/aws/lambda/cv-func-23l-3025\'\].\{Name:logGroupName\,RetentionDays:retentionInDays\}
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws lambda get-function-configuration --function-name cv-func-23l-3025 --query \{Name:FunctionName\,Runtime:Runtime\,Memory:MemorySize\,Timeout:Timeout\,Role:Role\,BUCKET:Environment.Variables.BUCKET\,PREFIX:Environment.Variables.PREFIX\,Logging:LoggingConfig\}
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws lambda list-tags --resource arn:aws:lambda:ap-southeast-2:unknown:function:cv-func-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws lambda get-function-url-config --function-name cv-func-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127
+
+$ aws lambda get-policy --function-name cv-func-23l-3025
+./collect-evidence.sh: line 23: aws: command not found
+ERROR: command exited with status 127

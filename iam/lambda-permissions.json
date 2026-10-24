@@ -1,0 +1,6 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {"Sid": "ReadSiteObjects", "Effect": "Allow", "Action": "s3:GetObject", "Resource": ["arn:aws:s3:::cv-23l-3025-82741/site/index.html", "arn:aws:s3:::cv-23l-3025-82741/site/style.css", "arn:aws:s3:::cv-23l-3025-82741/site/cv.pdf"]}
+  ]
+}

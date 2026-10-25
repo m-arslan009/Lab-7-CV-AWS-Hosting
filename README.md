@@ -18,9 +18,9 @@ This project hosts my CV through an EC2 web server and a Python Lambda Function 
 
 ## Verification status
 
-Authenticated AWS evidence from the supplied `aws-lab7-evidence (1).zip` was collected in CloudShell on **25 October 2026 at 04:40 UTC (09:40 Asia/Karachi)**, with IAM exports at 04:41 UTC. It has replaced the older 24 October snapshot in `evidence.txt`. The evidence contains all eleven required sections and reports zero unexpected command/discovery errors; the expected `NoSuchBucketPolicy` response confirms there is no bucket policy. The new exports verify the explicit-object-ARN IAM fixes. The supplied EC2 capture now also verifies the observed synchronization schedule, ten successful log entries, matching footer and instance-role DeleteObject denial. Owner tag capitalization remains unresolved as described below.
+Authenticated AWS evidence from the supplied `aws-lab7-evidence.zip` was collected in CloudShell on **25 October 2026 at 05:25 UTC (10:25 Asia/Karachi)**, with IAM exports at 05:26 UTC. It has replaced the earlier snapshot in `evidence.txt` after the verified tag correction. The evidence contains all eleven required sections and reports zero unexpected command/discovery errors; the expected `NoSuchBucketPolicy` response confirms there is no bucket policy. The new exports verify the explicit-object-ARN IAM fixes. The supplied EC2 capture now also verifies the observed synchronization schedule, ten successful log entries, matching footer and instance-role DeleteObject denial. All five Owner tags now match `23L-3025`; the final tag concern is resolved by actual before/after output and refreshed AWS reads.
 
-Archive SHA-256: `76602ed4a5e227b7d14ea18af96f67667cdef0e1d866791bd96709b8c9f09189`. The six imported files are preserved byte for byte from the archive. `iam/deployed-policy-metadata.json` records the caller, real policy names, managed attachments and review findings. These are actual exported policies, not proposed replacements. No AWS resource was changed during integration.
+Archive SHA-256: `9bab7bf28e7d7164b1cde78818a9bccddfd432dfe76decb64c832ce44aa8dd70`. The seven imported files, including `tag-verification.json`, are preserved byte for byte from the archive. `iam/deployed-policy-metadata.json` records the caller, real policy names, managed attachments and review findings. These are actual exported policies, not proposed replacements. No AWS resource was changed during integration.
 
 | Check | Actual evidence | Result |
 | --- | --- | --- |
@@ -34,13 +34,13 @@ Archive SHA-256: `76602ed4a5e227b7d14ea18af96f67667cdef0e1d866791bd96709b8c9f091
 | EC2 | Running `t3.micro`, Amazon Linux 2023 AMI `ami-0ddbd63d0e3325a92`, IMDSv2 required, expected role/profile | Pass for recorded configuration |
 | HTTP paths | Both hosts return 200 for HTML/CSS/PDF with correct types; Lambda `/anything` returns HTML 404; direct S3 returns 403 | Pass |
 | Lambda | `python3.14`, 128 MB, 10-second timeout, expected BUCKET/PREFIX/role, Function URL AuthType NONE | Pass for recorded configuration |
-| Logging | 9 observed application JSON records contain fn/path/status/ms; log group retention is 7 days | Pass for observed records and retention |
-| Required tags | Bucket, instance, function and both roles have `Course=cloud`, `Owner=23l-3025` | Present; case differs from handout's `23L-3025` roll number |
+| Logging | 10 observed application JSON records contain fn/path/status/ms; log group retention is 7 days | Pass for observed records and retention |
+| Required tags | Bucket, instance, function and both roles have `Course=cloud`, `Owner=23L-3025` | Pass; verified after correction |
 | Budget and hygiene | MONTHLY COST budget `cv-lab7-budget`, USD 5 limit; one nonterminated instance; no Elastic IP, active/pending NAT gateway or classic/v2 load balancer in Sydney | Verified snapshot; budget alerts and other Regions not collected |
 | EC2 timer and log excerpt | Upcoming timer activation; ten SUCCESS entries; recurring 241-second gaps | Pass for observed schedule (under five minutes) |
 | EC2 instance-role denial | Actual DeleteObject AccessDenied names the expected assumed EC2 role and test key | Pass |
 
-Public HTTP checks refreshed on **25 October 2026 at 09:34 Asia/Karachi** passed all ten tests in `endpoint-checks.txt`. The EC2 footer read `Hosted on: EC2 i-0dd412efb83c5229b`; authenticated instance evidence now confirms that same instance ID and public IP. Lambda's footer was `Hosted on: Lambda cv-func-23l-3025`, with `Cache-Control: max-age=60`. Both downloaded PDFs matched the original PDF byte for byte in `endpoint-checks.txt`. The refreshed CloudShell endpoint section corroborates response statuses and MIME types at 04:40 UTC on 25 October.
+Public HTTP checks refreshed on **25 October 2026 at 09:34 Asia/Karachi** passed all ten tests in `endpoint-checks.txt`. The EC2 footer read `Hosted on: EC2 i-0dd412efb83c5229b`; authenticated instance evidence now confirms that same instance ID and public IP. Lambda's footer was `Hosted on: Lambda cv-func-23l-3025`, with `Cache-Control: max-age=60`. Both downloaded PDFs matched the original PDF byte for byte in `endpoint-checks.txt`. The refreshed CloudShell endpoint section corroborates response statuses and MIME types at 05:25 UTC on 25 October.
 
 Local Python, Bash, JSON, structure, file-size and secret/private-key checks passed. The original portfolio, CSS and PDF are unchanged. Reviewed repository EC2 scripts and Lambda source have not been deployed by this integration task; the archive does not contain a byte-for-byte export of deployed code or EC2 user data. The separate supplied EC2 capture confirms the observed timer/log interval is below five minutes; exact deployed unit-file/source equivalence has not been exported.
 
@@ -48,7 +48,21 @@ Local Python, Bash, JSON, structure, file-size and secret/private-key checks pas
 
 The refreshed archive now independently verifies the previously user-reported IAM fixes and the budget's MONTHLY period. Both GetObject policies list exactly the three required site object ARNs; the exporter reports an empty `reviewFindings` list. Previous wildcard findings are resolved in this authenticated snapshot, and the committed JSON is the actual exported AWS state.
 
-The supplied `ec2-instance-evidence.txt` now substantiates the observed timer schedule, ten consecutive SUCCESS entries, matching instance footer and AccessDenied result for the EC2 assumed role. Its actual excerpts and source hash are included below. The private PEM file was not opened or used during repository finalization. The five Owner tags still read lowercase `23l-3025`, so exact capitalization against the handout remains unresolved. Budget notifications, other Regions and byte-for-byte deployed-source equivalence are not included in the supplied evidence.
+The supplied `ec2-instance-evidence.txt` substantiates the observed timer schedule, ten consecutive SUCCESS entries, matching instance footer and AccessDenied result for the EC2 assumed role. Its actual excerpts and source hash are preserved below. The private PEM file was not opened or used during repository finalization. All five Owner tags are now verified as `23L-3025`; no tag-case issue remains. Budget notifications, other Regions and byte-for-byte deployed-source equivalence are outside the supplied evidence; these scope limits have not been presented as newly verified results.
+
+### Verified Owner tag correction
+
+The authorized tag helper was run in authenticated AWS CloudShell. `tag-verification.json` records account `240571106211`, Region `ap-southeast-2`, before/after reads and successful writes for all five resources, with `Verified=true`. The subsequent independent collector output confirms the final values in `evidence.txt` and the role metadata.
+
+| Resource | Owner before | Owner after | Course before/after | Tag update recorded |
+| --- | --- | --- | --- | --- |
+| S3 `cv-23l-3025-82741` | `23l-3025` | `23L-3025` | `cloud` / `cloud` | Yes |
+| EC2 `i-0dd412efb83c5229b` | `23l-3025` | `23L-3025` | `cloud` / `cloud` | Yes |
+| IAM `cv-ec2-role-23l-3025` | `23l-3025` | `23L-3025` | `cloud` / `cloud` | Yes |
+| Lambda `cv-func-23l-3025` | `23l-3025` | `23L-3025` | `cloud` / `cloud` | Yes |
+| IAM `cv-lambda-role-23l-3025` | `23l-3025` | `23L-3025` | `cloud` / `cloud` | Yes |
+
+The S3 before/after tag sets contain the same keys, with only the Owner value corrected. The existing EC2 `Name=cv-ec2-23l-3025` tag is preserved; Course and every unrelated tag shown in the report are unchanged. No IAM permission, trust policy, security-group rule, instance setting, Lambda code or CV object was changed by the tag helper. All four exported IAM policy files are byte-identical to the previously verified files. Repository integration only copies the actual results; it does not perform additional AWS tag writes.
 
 ## Architecture
 
@@ -88,7 +102,7 @@ iam/
   lambda-permissions.json
 ```
 
-`collect-cloudshell.sh` performs authenticated collection and local IAM exports; `ec2/collect-instance-evidence.sh` collects timer/log/role-denial proof on the instance. `endpoint-checks.txt` contains the fresh real public HTTP results. `.gitignore` protects local credentials, private keys and generated packages; `.gitattributes` keeps shell scripts in LF format. The supplied assignment document is retained locally as a reference, outside the submission commit.
+`collect-cloudshell.sh` performs authenticated collection and local IAM exports; `ec2/collect-instance-evidence.sh` collects timer/log/role-denial proof on the instance. `endpoint-checks.txt` contains the fresh real public HTTP results. `tag-verification.json` preserves the genuine five-resource tag before/after report. `.gitignore` protects local credentials, private keys and generated packages; `.gitattributes` keeps shell scripts in LF format. The supplied assignment document is retained locally as a reference, outside the submission commit.
 
 Technologies: Amazon S3, EC2, IAM, Lambda Function URLs, CloudWatch Logs, Amazon Linux 2023, Nginx, systemd, AWS CLI, Python/boto3, Bash, HTML/CSS, Git and curl.
 
@@ -120,7 +134,7 @@ The sync script uses temporary credentials supplied by the IAM instance role. It
 
 The timer starts the service every four minutes; the service has a 50-second timeout, leaving headroom within the five-minute update requirement during successful operation. Network or permission failures can delay updates and are recorded as failures; the next timer run retries. Nginx's standard MIME configuration serves HTML, CSS and PDF.
 
-For a reviewed future deployment, use one eligible `t2.micro` or `t3.micro` Amazon Linux 2023 instance, attach the instance profile containing the EC2 role, require IMDSv2 (`HttpTokens=required`), and use its ordinary public IPv4 address. Permit inbound TCP 80 from anywhere; TCP 22 must be absent or restricted to your own single `/32`; allow no other inbound rules. Do not allocate an Elastic IP, NAT gateway or load balancer. For literal handout compliance, use `Owner=23L-3025` and `Course=cloud` on the instance, bucket, function and both roles; the actual imported Owner values are lowercase and remain unchanged pending review. Check your account's actual Free Tier/credits and budget in Billing.
+For a reviewed future deployment, use one eligible `t2.micro` or `t3.micro` Amazon Linux 2023 instance, attach the instance profile containing the EC2 role, require IMDSv2 (`HttpTokens=required`), and use its ordinary public IPv4 address. Permit inbound TCP 80 from anywhere; TCP 22 must be absent or restricted to your own single `/32`; allow no other inbound rules. Do not allocate an Elastic IP, NAT gateway or load balancer. The refreshed evidence confirms `Owner=23L-3025` and `Course=cloud` on the instance, bucket, function and both roles, matching the handout. Check your account's actual Free Tier/credits and budget in Billing.
 
 Read-only checks from a shell on the existing instance:
 
@@ -252,7 +266,7 @@ zip -r aws-lab7-evidence.zip evidence.txt iam/
 
 Download the newly generated ZIP and provide it for integration. For future refreshes, confirm both GetObject policies contain exactly the index.html, style.css and cv.pdf ARNs, EC2 retains prefix-restricted ListBucket, Lambda has no ListBucket, and AWSLambdaBasicExecutionRole remains attached. The helper retrieves the actual trust and inline policies; do not manually edit historical exports to simulate that result. If CloudShell has uncommitted earlier exports, preserve them or download them first if `git pull --ff-only` refuses to overwrite them. Do not reset or discard them.
 
-Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too; current evidence confirms all five Owner tags use lowercase `23l-3025`, the USD 5 budget exists, and Sydney has no recorded Elastic IP/NAT/load balancer. The supplied snapshot has been checked against these requirements as summarized above. IAM scope now passes; Owner tag case remains unresolved; the collection does not certify billing allowances or future configuration.
+Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too; current evidence confirms all five Owner tags use `23L-3025`, the USD 5 budget exists, and Sydney has no recorded Elastic IP/NAT/load balancer. The supplied snapshot has been checked against these requirements as summarized above. IAM scope and required tag values now pass; the collection does not certify billing allowances or future configuration.
 
 ### Collect the existing instance evidence
 
@@ -295,7 +309,7 @@ The five Section 8 answers above are preserved. No AWS resources, deployed sourc
 ## Submission checklist
 
 - IAM explicit-object-ARN fixes are verified by the new exports. Preserve these genuine exports; refresh only after further AWS changes or before submission if needed.
-- Confirm whether Owner tag values must match `23L-3025` exactly. All five actual values are `23l-3025`; obtain approval before changing tags and recollect evidence afterward.
+- Required tags are verified on all five resources: `Owner=23L-3025`, `Course=cloud`. Actual before/after values and successful writes are retained in `tag-verification.json`.
 - EC2 timer/log/footer/AccessDenied excerpts are integrated and verified. Keep both hosts and the synchronization timer running through marking; collect fresh evidence only if the deployed configuration changes or the instructor requests it.
 - Check that deployed source matches the reviewed implementation where required, verify account-specific credits/allowances and budget notifications in Billing, and inspect any other used Regions separately.
 - Keep both public sites working through marking. Submit the repository URL, both website URLs and roll number `23L-3025` through the instructor's channel.
@@ -304,7 +318,7 @@ The five Section 8 answers above are preserved. No AWS resources, deployed sourc
 
 The existing portfolio and CV were retained. Repository preparation, the proposed Lambda handler, revised synchronization code, earlier proposed policies and evidence collector were prepared with Codex assistance; review them and be able to explain them before submission, and confirm the instructor's AI-tool policy (the provided assignment leaves it unspecified).
 
-Collector regression checks passed using isolated fixtures for wrong arguments, missing CLI, expected NoSuchBucketPolicy, actual-error classification, authentication failure, account/resource discovery, multiple policy names/security groups, all eleven headings and DONE. These fixtures are local tests and are not committed as AWS evidence. Public HTTP checks passed and the supplied authenticated configuration was reviewed; the EC2 excerpts are now verified and integrated; the Owner-tag capitalization concern and other stated scope limitations remain.
+Collector regression checks passed using isolated fixtures for wrong arguments, missing CLI, expected NoSuchBucketPolicy, actual-error classification, authentication failure, account/resource discovery, multiple policy names/security groups, all eleven headings and DONE. These fixtures are local tests and are not committed as AWS evidence. Public HTTP checks passed and the supplied authenticated configuration was reviewed; the EC2 excerpts are now verified and integrated; the Owner-tag capitalization concern is resolved; the stated evidence scope limitations remain.
 
 Collection references: [AWS CloudShell](https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html), [bucket Region discovery](https://docs.aws.amazon.com/cli/latest/reference/s3api/get-bucket-location.html), and [version-specific S3 deletion](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html).
 

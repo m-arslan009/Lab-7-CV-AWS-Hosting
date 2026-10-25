@@ -1,0 +1,65 @@
+{
+  "Account": "240571106211",
+  "Region": "ap-southeast-2",
+  "Before": {
+    "S3": {
+      "Course": "cloud",
+      "Owner": "23l-3025"
+    },
+    "EC2": {
+      "Course": "cloud",
+      "Name": "cv-ec2-23l-3025",
+      "Owner": "23l-3025"
+    },
+    "EC2 role": {
+      "Owner": "23l-3025",
+      "Course": "cloud"
+    },
+    "Lambda": {
+      "Course": "cloud",
+      "Owner": "23l-3025"
+    },
+    "Lambda role": {
+      "Owner": "23l-3025",
+      "Course": "cloud"
+    }
+  },
+  "Attempted": [
+    "S3",
+    "EC2",
+    "EC2 role",
+    "Lambda",
+    "Lambda role"
+  ],
+  "Changed": [
+    "S3",
+    "EC2",
+    "EC2 role",
+    "Lambda",
+    "Lambda role"
+  ],
+  "After": {
+    "S3": {
+      "Course": "cloud",
+      "Owner": "23L-3025"
+    },
+    "EC2": {
+      "Course": "cloud",
+      "Name": "cv-ec2-23l-3025",
+      "Owner": "23L-3025"
+    },
+    "EC2 role": {
+      "Owner": "23L-3025",
+      "Course": "cloud"
+    },
+    "Lambda": {
+      "Course": "cloud",
+      "Owner": "23L-3025"
+    },
+    "Lambda role": {
+      "Owner": "23L-3025",
+      "Course": "cloud"
+    }
+  },
+  "Verified": true
+}

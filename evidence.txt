@@ -1,6 +1,6 @@
 
 == caller ==
-Collected at 2026-10-25T04:40:34Z; initial Region ap-southeast-2
+Collected at 2026-10-25T05:25:38Z; initial Region ap-southeast-2
 
 $ aws --version
 aws-cli/2.38.1 Python/3.14.6 Linux/6.1.188-233.393.amzn2023.x86_64 exec-env/CloudShell exe/x86_64.amzn.2023
@@ -72,7 +72,7 @@ $ aws s3api get-bucket-tagging --bucket cv-23l-3025-82741
         },
         {
             "Key": "Owner",
-            "Value": "23l-3025"
+            "Value": "23L-3025"
         }
     ]
 }
@@ -176,7 +176,7 @@ $ aws iam get-role --role-name cv-ec2-role-23l-3025
         "Tags": [
             {
                 "Key": "Owner",
-                "Value": "23l-3025"
+                "Value": "23L-3025"
             },
             {
                 "Key": "Course",
@@ -184,7 +184,7 @@ $ aws iam get-role --role-name cv-ec2-role-23l-3025
             }
         ],
         "RoleLastUsed": {
-            "LastUsedDate": "2026-10-25T04:28:21+00:00",
+            "LastUsedDate": "2026-10-25T05:12:32+00:00",
             "Region": "ap-southeast-2"
         }
     }
@@ -263,7 +263,7 @@ $ aws iam get-role --role-name cv-lambda-role-23l-3025
         "Tags": [
             {
                 "Key": "Owner",
-                "Value": "23l-3025"
+                "Value": "23L-3025"
             },
             {
                 "Key": "Course",
@@ -271,7 +271,7 @@ $ aws iam get-role --role-name cv-lambda-role-23l-3025
             }
         ],
         "RoleLastUsed": {
-            "LastUsedDate": "2026-10-25T04:16:57+00:00",
+            "LastUsedDate": "2026-10-25T04:41:25+00:00",
             "Region": "ap-southeast-2"
         }
     }
@@ -424,12 +424,12 @@ $ aws ec2 describe-instances --filters Name=tag:Name\,Values=cv-ec2-23l-3025 --q
         },
         "Tags": [
             {
-                "Key": "Course",
-                "Value": "cloud"
+                "Key": "Owner",
+                "Value": "23L-3025"
             },
             {
-                "Key": "Owner",
-                "Value": "23l-3025"
+                "Key": "Course",
+                "Value": "cloud"
             },
             {
                 "Key": "Name",
@@ -497,12 +497,12 @@ $ aws ec2 describe-instances --filters Name=instance-state-name\,Values=pending\
         "State": "running",
         "Tags": [
             {
-                "Key": "Course",
-                "Value": "cloud"
+                "Key": "Owner",
+                "Value": "23L-3025"
             },
             {
-                "Key": "Owner",
-                "Value": "23l-3025"
+                "Key": "Course",
+                "Value": "cloud"
             },
             {
                 "Key": "Name",
@@ -580,23 +580,6 @@ Direct S3: status=403 content-type=application/xml
 == lambda-logs ==
 
 $ aws logs tail /aws/lambda/cv-func-23l-3025 --since 1h --format short
-2026-10-25T04:16:34 INIT_START Runtime Version: python:3.14.mainline.v75	Runtime Version ARN: arn:aws:lambda:ap-southeast-2::runtime:a80514a5081d762ddcf7613643fa0106781d9c6d290a1c3536b6290ceef969a8
-2026-10-25T04:16:35 START RequestId: a882daa7-21fd-4cfb-8c1a-172ec748a162 Version: $LATEST
-2026-10-25T04:16:35 {"fn": "cv-func-23l-3025", "path": "/", "status": 200, "ms": 288.37}
-2026-10-25T04:16:35 END RequestId: a882daa7-21fd-4cfb-8c1a-172ec748a162
-2026-10-25T04:16:35 REPORT RequestId: a882daa7-21fd-4cfb-8c1a-172ec748a162	Duration: 324.79 ms	Billed Duration: 849 ms	Memory Size: 128 MB	Max Memory Used: 100 MB	Init Duration: 523.82 ms
-2026-10-25T04:16:35 START RequestId: 84b31fb7-086c-49e5-a6b9-fae369ceac4e Version: $LATEST
-2026-10-25T04:16:36 {"fn": "cv-func-23l-3025", "path": "/style.css", "status": 200, "ms": 62.93}
-2026-10-25T04:16:36 END RequestId: 84b31fb7-086c-49e5-a6b9-fae369ceac4e
-2026-10-25T04:16:36 REPORT RequestId: 84b31fb7-086c-49e5-a6b9-fae369ceac4e	Duration: 78.99 ms	Billed Duration: 79 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
-2026-10-25T04:16:48 START RequestId: b6180ea8-eb3a-42ee-ad1b-346c7f7cc71f Version: $LATEST
-2026-10-25T04:16:48 {"fn": "cv-func-23l-3025", "path": "/cv.pdf", "status": 200, "ms": 307.54}
-2026-10-25T04:16:48 END RequestId: b6180ea8-eb3a-42ee-ad1b-346c7f7cc71f
-2026-10-25T04:16:48 REPORT RequestId: b6180ea8-eb3a-42ee-ad1b-346c7f7cc71f	Duration: 315.97 ms	Billed Duration: 316 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
-2026-10-25T04:16:55 START RequestId: 3e940aa0-87f2-43ae-b91b-7ddf1a304ee5 Version: $LATEST
-2026-10-25T04:16:56 {"fn": "cv-func-23l-3025", "path": "/style.css", "status": 200, "ms": 191.24}
-2026-10-25T04:16:56 END RequestId: 3e940aa0-87f2-43ae-b91b-7ddf1a304ee5
-2026-10-25T04:16:56 REPORT RequestId: 3e940aa0-87f2-43ae-b91b-7ddf1a304ee5	Duration: 194.40 ms	Billed Duration: 195 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
 2026-10-25T04:34:16 INIT_START Runtime Version: python:3.14.mainline.v75	Runtime Version ARN: arn:aws:lambda:ap-southeast-2::runtime:a80514a5081d762ddcf7613643fa0106781d9c6d290a1c3536b6290ceef969a8
 2026-10-25T04:34:17 INIT_START Runtime Version: python:3.14.mainline.v75	Runtime Version ARN: arn:aws:lambda:ap-southeast-2::runtime:a80514a5081d762ddcf7613643fa0106781d9c6d290a1c3536b6290ceef969a8
 2026-10-25T04:34:17 START RequestId: beacd508-eb82-4a89-af6e-305c078cd7a1 Version: $LATEST
@@ -620,6 +603,26 @@ $ aws logs tail /aws/lambda/cv-func-23l-3025 --since 1h --format short
 2026-10-25T04:34:18 {"fn": "cv-func-23l-3025", "path": "/style.css", "status": 200, "ms": 317.13}
 2026-10-25T04:34:18 END RequestId: 6c361baa-8fdc-4bcf-970e-fd6d234bb751
 2026-10-25T04:34:18 REPORT RequestId: 6c361baa-8fdc-4bcf-970e-fd6d234bb751	Duration: 333.75 ms	Billed Duration: 895 ms	Memory Size: 128 MB	Max Memory Used: 100 MB	Init Duration: 560.43 ms
+2026-10-25T04:41:16 START RequestId: 66181b15-237b-4256-ab76-ab39383926cd Version: $LATEST
+2026-10-25T04:41:17 {"fn": "cv-func-23l-3025", "path": "/", "status": 200, "ms": 311.08}
+2026-10-25T04:41:17 END RequestId: 66181b15-237b-4256-ab76-ab39383926cd
+2026-10-25T04:41:17 REPORT RequestId: 66181b15-237b-4256-ab76-ab39383926cd	Duration: 326.87 ms	Billed Duration: 327 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
+2026-10-25T04:41:17 START RequestId: 0b70354b-4ae4-4326-ac09-858778ded68e Version: $LATEST
+2026-10-25T04:41:17 {"fn": "cv-func-23l-3025", "path": "/index.html", "status": 200, "ms": 30.17}
+2026-10-25T04:41:17 END RequestId: 0b70354b-4ae4-4326-ac09-858778ded68e
+2026-10-25T04:41:17 REPORT RequestId: 0b70354b-4ae4-4326-ac09-858778ded68e	Duration: 39.30 ms	Billed Duration: 40 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
+2026-10-25T04:41:17 START RequestId: a9f58129-bcaf-4460-b234-33368bfc3121 Version: $LATEST
+2026-10-25T04:41:17 {"fn": "cv-func-23l-3025", "path": "/style.css", "status": 200, "ms": 28.32}
+2026-10-25T04:41:17 END RequestId: a9f58129-bcaf-4460-b234-33368bfc3121
+2026-10-25T04:41:17 REPORT RequestId: a9f58129-bcaf-4460-b234-33368bfc3121	Duration: 42.19 ms	Billed Duration: 43 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
+2026-10-25T04:41:17 START RequestId: 5706d530-74bd-441b-a350-105557ffe9b5 Version: $LATEST
+2026-10-25T04:41:17 {"fn": "cv-func-23l-3025", "path": "/cv.pdf", "status": 200, "ms": 80.9}
+2026-10-25T04:41:17 END RequestId: 5706d530-74bd-441b-a350-105557ffe9b5
+2026-10-25T04:41:17 REPORT RequestId: 5706d530-74bd-441b-a350-105557ffe9b5	Duration: 102.24 ms	Billed Duration: 103 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
+2026-10-25T04:41:17 START RequestId: e6df598d-77e5-4001-b47c-5f57d4096d1f Version: $LATEST
+2026-10-25T04:41:17 {"fn": "cv-func-23l-3025", "path": "/anything", "status": 404, "ms": 0.0}
+2026-10-25T04:41:17 END RequestId: e6df598d-77e5-4001-b47c-5f57d4096d1f
+2026-10-25T04:41:17 REPORT RequestId: e6df598d-77e5-4001-b47c-5f57d4096d1f	Duration: 1.54 ms	Billed Duration: 2 ms	Memory Size: 128 MB	Max Memory Used: 100 MB
 
 == log-retention ==
 
@@ -654,7 +657,7 @@ $ aws lambda list-tags --resource arn:aws:lambda:ap-southeast-2:240571106211:fun
 {
     "Tags": {
         "Course": "cloud",
-        "Owner": "23l-3025"
+        "Owner": "23L-3025"
     }
 }
 

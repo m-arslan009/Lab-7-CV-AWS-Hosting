@@ -1,5 +1,5 @@
 {
-  "collectedAt": "2026-10-24T18:31:24.506025+00:00",
+  "collectedAt": "2026-10-25T04:41:24.155790+00:00",
   "caller": {
     "UserId": "AROATQAZHYOR6JWUCS4UT:b488b458-4061-705f-0424-f51d13c08242",
     "Account": "240571106211",
@@ -27,7 +27,11 @@
               "Sid": "ReadCVFiles",
               "Effect": "Allow",
               "Action": "s3:GetObject",
-              "Resource": "arn:aws:s3:::cv-23l-3025-82741/site/*"
+              "Resource": [
+                "arn:aws:s3:::cv-23l-3025-82741/site/index.html",
+                "arn:aws:s3:::cv-23l-3025-82741/site/style.css",
+                "arn:aws:s3:::cv-23l-3025-82741/site/cv.pdf"
+              ]
             },
             {
               "Sid": "ListCVFiles",
@@ -70,17 +74,16 @@
               "Sid": "ReadCVFiles",
               "Effect": "Allow",
               "Action": "s3:GetObject",
-              "Resource": "arn:aws:s3:::cv-23l-3025-82741/site/*"
+              "Resource": [
+                "arn:aws:s3:::cv-23l-3025-82741/site/index.html",
+                "arn:aws:s3:::cv-23l-3025-82741/site/style.css",
+                "arn:aws:s3:::cv-23l-3025-82741/site/cv.pdf"
+              ]
             }
           ]
         }
       }
     }
   },
-  "reviewFindings": [
-    "cv-ec2-role-23l-3025: wildcard in inline action/resource",
-    "cv-ec2-role-23l-3025: GetObject resources differ from the three required object ARNs",
-    "cv-lambda-role-23l-3025: wildcard in inline action/resource",
-    "cv-lambda-role-23l-3025: GetObject resources differ from the three required object ARNs"
-  ]
+  "reviewFindings": []
 }

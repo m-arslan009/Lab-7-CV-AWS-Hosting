@@ -1,4 +1,4 @@
-Public endpoint checks at 2026-10-24T18:11:33.148863+00:00
+Public endpoint checks at 2026-10-25T04:34:19.712219+00:00
 These HTTP checks do not verify authenticated AWS configuration or instance-role permissions.
 
 EC2 /: status=200 content-type=text/html

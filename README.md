@@ -40,9 +40,15 @@ Archive SHA-256: `9d297a66b7b6715f5cb8aaeef5942fcf03e6bc982550fd8679e02c0258b898
 | EC2 timer and log excerpt | No deployed timer output or last-ten-log excerpt in archive | Pending |
 | EC2 instance-role denial | No real failed write/delete output in archive | Pending |
 
-The live EC2 footer previously read `Hosted on: EC2 i-0dd412efb83c5229b`; authenticated instance evidence now confirms that same instance ID and public IP. Lambda's footer was `Hosted on: Lambda cv-func-23l-3025`, with `Cache-Control: max-age=60`. Both downloaded PDFs matched the original PDF byte for byte in `endpoint-checks.txt`. The newer CloudShell endpoint section corroborates response statuses and MIME types.
+Public HTTP checks refreshed on **25 October 2026 at 09:34 Asia/Karachi** passed all ten tests in `endpoint-checks.txt`. The EC2 footer read `Hosted on: EC2 i-0dd412efb83c5229b`; authenticated instance evidence now confirms that same instance ID and public IP. Lambda's footer was `Hosted on: Lambda cv-func-23l-3025`, with `Cache-Control: max-age=60`. Both downloaded PDFs matched the original PDF byte for byte in `endpoint-checks.txt`. The historical CloudShell endpoint section corroborates the earlier response statuses and MIME types.
 
 Local Python, Bash, JSON, structure, file-size and secret/private-key checks passed. The original portfolio, CSS and PDF are unchanged. Reviewed repository EC2 scripts and Lambda source have not been deployed by this integration task; the archive does not contain a byte-for-byte export of deployed code or EC2 user data. The running synchronization interval remains unverified until the actual timer and logs are collected.
+
+### Latest user-reported changes and evidence still needed
+
+On **25 October 2026**, the student reported replacing both deployed GetObject resource patterns with the three explicit object ARNs, successful PowerShell SSH access, and multiple consecutive synchronization SUCCESS entries. No newer archive or captured instance output was available for this review. Local AWS CLI is absent and no SSH agent is running; the private PEM file was not opened or used. These deployment updates remain **user-reported, pending fresh exports/output**. The existing authenticated snapshot and IAM JSON are preserved, including their older `site/*` values; they must not be presented as current confirmation of the reported fixes.
+
+The budget's USD 5 limit is verified by the existing snapshot; its monthly period is user-reported until the refreshed collector includes `Period:TimeUnit`. The helper's treatment of outputs was reviewed: it checks authentication first, backs up existing evidence under ignored `.validation/backups/`, replaces `evidence.txt` with actual collection output, then retrieves/parses all IAM documents before replacing local exports. It also writes real source metadata and reports policy findings without changing AWS. Do not run it in an unauthenticated local shell expecting a successful refresh.
 
 ## Architecture
 
@@ -100,7 +106,7 @@ Both actual S3 permission documents contain this exact GetObject resource:
 
 EC2 additionally has `s3:ListBucket` on `arn:aws:s3:::cv-23l-3025-82741`, conditioned on `StringEquals: {"s3:prefix": "site/"}`. Neither inline policy grants S3 writes/deletes or wildcard actions. `site/*` matches objects only within the named bucket's `site/` prefix; it is not the unrestricted resource `"*"`. This is a valid prefix-scoped AWS resource pattern, as explained in [AWS IAM resource documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_resource.html).
 
-**Assignment discrepancy:** Section 4 explicitly says no wildcard resources except in the managed logging policy. Both deployed inline policies still contain `site/*`, so strict compliance cannot be marked complete. The metadata's four findings reflect that pattern and the earlier validator's expectation of three explicit object ARNs; they do not mean the roles have unrestricted account-wide access. No policy or metadata finding was silently changed. To meet the literal rule, obtain approval to replace only the GetObject resource pattern in each deployed inline policy with the three explicit object ARNs, then collect/export fresh evidence. The current exported JSON must remain a faithful record until that change actually occurs.
+**Historical assignment discrepancy:** Section 4 explicitly says no wildcard resources except in the managed logging policy. Both inline policies in the 24 October export contain `site/*`; the student now reports replacing these in AWS with the three explicit object ARNs. Current compliance is pending fresh exports, rather than a confirmed continuing deployment defect. The historical metadata's four findings reflect the older pattern and the earlier validator's expectation of three explicit object ARNs; they do not mean the roles had unrestricted account-wide access. No exported policy or metadata finding was silently changed. Refresh actual evidence before considering any further IAM change; do not repeat a reported completed fix based on the historical JSON.
 
 Use `bash collect-cloudshell.sh` for a future authenticated refresh. It discovers actual inline policy names, retrieves/parses all four documents before replacing local files, preserves local backups under ignored `.validation/backups/`, and records source metadata. Multiple inline policies or retrieval failures stop the four-file replacement for review. The helper reports discrepancies without modifying AWS permissions. The public Function URL's wildcard Principal is an invocation permission, separate from S3 execution-role resource scope; AWSLambdaBasicExecutionRole's logging wildcard is the handout's explicit exception.
 
@@ -162,7 +168,7 @@ python -m json.tool iam/lambda-permissions.json > /dev/null
 
 ### Required EC2 access-denied excerpt
 
-**Pending: no instance shell or authenticated AWS access was available.** Run `ec2/collect-instance-evidence.sh` on the existing instance as described below, then paste its actual deletion command and AccessDenied output here. The helper uses the instance role, a random nonexistent test key and an explicit null version; it never targets a CV object. Anonymous S3 HTTP 403 is a separate check and cannot replace instance-role denial evidence. No deletion probe was run during local preparation.
+**Pending: no instance shell or authenticated AWS access was available.** Run `ec2/collect-instance-evidence.sh` on the existing instance as described below, then paste its actual deletion command and AccessDenied output here. The helper confirms the expected instance role and verifies the requested test key is absent before testing DeleteObject; it never targets a CV object. Anonymous S3 HTTP 403 is a separate check and cannot replace instance-role denial evidence. No deletion probe was run during local preparation.
 
 ### Required final ten EC2 synchronization log entries
 
@@ -192,32 +198,42 @@ The instance's running web server, local sync state and ordinary public IPv4 end
 
 ## Finish evidence collection from AWS CloudShell
 
-The downloaded authenticated CloudShell run and actual IAM exports have now been integrated. Local AWS CLI access is still unavailable, but the supplied archive provides the configuration snapshot reviewed above. Use this workflow for a future refresh after any approved AWS changes; it is not necessary to replace the same snapshot again. The collector's missing-CLI guard preserves existing evidence when the local CLI is absent.
+The downloaded authenticated CloudShell run and actual IAM exports have now been integrated. Local AWS CLI access is still unavailable, but the supplied archive provides the configuration snapshot reviewed above. A refresh is now required to substantiate the student-reported Console IAM changes; preserve the old snapshot until fresh output is obtained. The collector's missing-CLI guard preserves existing evidence when the local CLI is absent.
 
-Open AWS CloudShell in **ap-southeast-2** using your existing signed-in AWS account. In a fresh CloudShell directory, run exactly:
+Open AWS CloudShell in **ap-southeast-2** using your existing signed-in AWS account, then run:
 
 ```bash
-git clone https://github.com/m-arslan009/Lab-7-CV-AWS-Hosting.git
-cd Lab-7-CV-AWS-Hosting
+cd ~/Lab-7-CV-AWS-Hosting
+git pull --ff-only origin main
 bash collect-cloudshell.sh
+zip -r aws-lab7-evidence.zip evidence.txt iam/
 ```
 
-If the clone already exists in CloudShell, enter it and run `git pull --ff-only` before the helper. CloudShell includes AWS CLI and uses your session; do not enter or share access keys. If an AWS query is denied, use the correct existing account/session or obtain the necessary read permission; do not broaden either workload role for collection.
+Download the newly generated ZIP and provide it for integration. Before export, confirm both GetObject policies contain exactly the index.html, style.css and cv.pdf ARNs, EC2 retains prefix-restricted ListBucket, Lambda has no ListBucket, and AWSLambdaBasicExecutionRole remains attached. The helper retrieves the actual trust and inline policies; do not manually edit historical exports to simulate that result. If CloudShell has uncommitted earlier exports, preserve them or download them first if `git pull --ff-only` refuses to overwrite them. Do not reset or discard them.
 
 Review the eleven sections in `evidence.txt`: four public-access settings must be true, versioning Enabled, exactly the three required current keys with acceptable sizes, correct least-privilege role policies, required security-group/IMDS/instance settings, endpoint responses, request JSON logs and seven-day retention. Check Lambda's supported Python runtime, 128–256 MB memory, 10-second timeout, BUCKET/PREFIX values, execution role, Function URL AuthType NONE and public invocation policy. The helper collects these values but its completion does not certify them. Review tags, budget and C15 resources too; current evidence confirms all five Owner tags use lowercase `23l-3025`, the USD 5 budget exists, and Sydney has no recorded Elastic IP/NAT/load balancer. The supplied snapshot has been checked against these requirements as summarized above. IAM wildcard scope and Owner tag case remain unresolved; the collection does not certify billing allowances or future configuration.
 
 ### Collect the existing instance evidence
 
-From a Bash shell containing the clone and your existing SSH key (never add that key to Git), run:
+Run this single block in **Windows PowerShell** from your computer. It uses your existing SSH command; the key is handled by your own SSH client and must never be copied into the repository:
 
-```bash
-ssh -i /path/to/existing-key.pem ec2-user@54.252.152.179 \
-  'bash -s' < ec2/collect-instance-evidence.sh > ec2-instance-evidence.txt
+```powershell
+Set-Location 'E:\7th Semester\DevOps\Lab-7-CV-AWS-Hosting'
+git pull --ff-only origin main
+$instanceScript = Get-Content -Raw -LiteralPath '.\ec2\collect-instance-evidence.sh'
+$instanceScript | ssh -i "$HOME\Downloads\cv-key-23l-3025.pem" ec2-user@54.252.152.179 "tr -d '\r' | bash -s" 2>&1 |
+    Tee-Object -FilePath '.\ec2-instance-evidence.txt'
 ```
 
-Replace only the key path. Use SSH only if your current security group already permits your address; otherwise use your existing EC2 Instance Connect session and paste/run the helper there. No security-group change is needed for repository preparation. The helper collects OS/instance identity, actual systemd timer units/status, the last ten synchronization log entries, caller identity and the actual S3 denial test. It clears other credential providers and refuses the probe unless the caller ARN is the expected EC2 role. It does not retrieve or print instance credential JSON or metadata tokens.
+Provide the resulting `ec2-instance-evidence.txt` for review. The remote `tr` removes PowerShell pipeline CR characters before Bash reads the script. The helper gathers the actual timer unit/properties, `sudo systemctl list-timers cv-sync.timer`, service status, served footer, caller identity and the last ten log entries. A completed oneshot service may legitimately show inactive/dead; use its recorded exit status and timer/log evidence together. Check the timer's actual period and the log timestamps, rather than inferring a schedule from this repository's source.
 
-The probe targets a fresh random `site/.readonly-probe-<uuid>` key with `--version-id null`. Explicit version deletion avoids adding a delete marker in the versioned bucket, and no real CV key is targeted even if permissions are unexpectedly excessive. Only an actual AccessDenied result counts; a successful response or different error is an unresolved permission/test issue. Do not retry against a real CV file. This probe establishes denial for the probe resource; review the full IAM policy as well to rule out per-object write grants.
+The helper clears other credential providers and refuses the test unless caller ARN matches `cv-ec2-role-23l-3025`. It never retrieves credential JSON or prints metadata tokens. It first lists `site/` to verify `site/permission-test-do-not-create.txt` is absent, then runs the requested command without a version ID:
+
+```bash
+aws s3api delete-object --bucket cv-23l-3025-82741 --key site/permission-test-do-not-create.txt
+```
+
+This tests `s3:DeleteObject`; the earlier version-specific probe tested a different permission. AccessDenied is the expected proof. If it succeeds, the helper reports a security issue, exits unsuccessfully and performs no cleanup; a delete marker may have been created for the test key in this versioned bucket. No real CV key is targeted. See [AWS versioning deletion behavior](https://docs.aws.amazon.com/AmazonS3/latest/userguide/DeletingObjectVersions.html). Only actual AccessDenied output counts; a different error is inconclusive. Review the full role policies too, because denial on the probe key does not rule out per-object write grants elsewhere.
 
 Paste the genuine AccessDenied excerpt and ten sync log lines into their pending README sections. Check at least three consecutive SUCCESS entries and their timestamps against the actual timer configuration (interval no greater than five minutes); neither a source-code timer nor the public footer proves the running timer. The live instance ID must match authenticated `describe-instances` output. Keep all remaining gaps marked pending until their evidence is obtained.
 
@@ -237,7 +253,7 @@ The five Section 8 answers above are preserved. No AWS resources, deployed sourc
 
 ## Submission checklist
 
-- Resolve or obtain instructor acceptance for the two prefix-scoped `site/*` resource patterns under the strict no-wildcard rule. Change AWS only after approval and export a new snapshot afterward; do not edit exported JSON to imply an undeployed fix.
+- Refresh authenticated evidence and actual IAM exports to verify the reported explicit-object-ARN changes. Historical exports still contain `site/*`; retain them until real replacements arrive, and do not make additional AWS changes based only on the historical snapshot.
 - Confirm whether Owner tag values must match `23L-3025` exactly. All five actual values are `23l-3025`; obtain approval before changing tags and recollect evidence afterward.
 - Collect actual EC2 timer output, last ten sync log lines and instance-role AccessDenied proof using the existing instance helper; paste genuine excerpts into the pending sections.
 - Check that deployed source matches the reviewed implementation where required, verify account-specific credits/allowances and budget notifications in Billing, and inspect any other used Regions separately.

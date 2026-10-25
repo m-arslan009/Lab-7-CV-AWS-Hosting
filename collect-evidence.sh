@@ -177,7 +177,7 @@ role_policies() {
     run aws elbv2 describe-load-balancers
     run aws elb describe-load-balancers
     if [[ -n "$ACCOUNT" ]]; then
-        run aws budgets describe-budgets --account-id "$ACCOUNT" --query 'Budgets[].{Name:BudgetName,Type:BudgetType,Limit:BudgetLimit}'
+        run aws budgets describe-budgets --account-id "$ACCOUNT" --query 'Budgets[].{Name:BudgetName,Type:BudgetType,Period:TimeUnit,Limit:BudgetLimit}'
     else
         echo 'SKIPPED: budget query requires a discovered account ID.'
     fi

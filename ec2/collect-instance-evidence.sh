@@ -27,22 +27,39 @@ if [[ "$ROLE_IDENTITY" != arn:*:sts::*:assumed-role/cv-ec2-role-23l-3025/* ]]; t
     exit 1
 fi
 echo '== synchronization-timer =='
-run systemctl list-timers --all --no-pager
+run sudo -n systemctl list-timers cv-sync.timer --no-pager
 run systemctl cat cv-sync.service cv-sync.timer
-run systemctl status cv-sync.timer --no-pager
+run systemctl show cv-sync.timer -p TimersMonotonic -p AccuracyUSec -p RandomizedDelayUSec
+run sudo -n systemctl status cv-sync.service --no-pager -l
+echo '== served-footer =='
+run grep -o 'Hosted on: [^<]*' /usr/share/nginx/html/index.html
 echo '== sync-log =='
 run sudo -n tail -n 10 /var/log/cv-sync.log
 echo '== instance-role-delete-denial =='
-# A random nonexistent key and explicit null version cannot delete the CV files
-# or create a versioning delete marker, even if deletion is unexpectedly allowed.
-NONCE=$(cat /proc/sys/kernel/random/uuid) || exit 1
-KEY="site/.readonly-probe-$NONCE"
-printf '$ aws s3api delete-object --bucket cv-23l-3025-82741 --key %q --version-id null\n' "$KEY"
-OUTPUT=$(aws s3api delete-object --bucket cv-23l-3025-82741 --key "$KEY" --version-id null 2>&1)
+# Check the exact site/ listing before targeting the requested nonexistent key.
+# No --version-id: test s3:DeleteObject rather than s3:DeleteObjectVersion.
+KEY="site/permission-test-do-not-create.txt"
+EXISTING=$(aws s3api list-objects-v2 --bucket cv-23l-3025-82741 --prefix site/ \
+    --query "Contents[?Key=='$KEY'].Key" --output text 2>&1)
+LIST_RC=$?
+if (( LIST_RC != 0 )); then
+    printf '%s\nERROR: cannot verify probe key absence; no deletion attempted.\n' "$EXISTING"
+    exit 1
+fi
+if [[ -n "$EXISTING" && "$EXISTING" != None ]]; then
+    echo 'ERROR: the probe key already exists; no deletion attempted.'
+    exit 1
+fi
+printf '$ aws s3api delete-object --bucket cv-23l-3025-82741 --key %q\n' "$KEY"
+OUTPUT=$(aws s3api delete-object --bucket cv-23l-3025-82741 --key "$KEY" 2>&1)
 RC=$?
 printf '%s\nExit status: %s\n' "$OUTPUT" "$RC"
 if (( RC != 0 )) && [[ "$OUTPUT" == *AccessDenied* ]]; then
     echo 'Verified: the instance-role deletion probe returned AccessDenied.'
+elif (( RC == 0 )); then
+    echo 'SECURITY ISSUE: instance role unexpectedly allowed DeleteObject. A probe-key delete marker may have been created. No cleanup attempted.'
+    exit 1
 else
-    echo 'UNVERIFIED: expected AccessDenied was not observed. Review IAM; do not test a real CV object.'
+    echo 'UNVERIFIED: expected AccessDenied was not observed. Review the actual error; do not test a real CV object.'
+    exit 1
 fi
